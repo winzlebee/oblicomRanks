@@ -1,0 +1,32 @@
+author: wizzledonker
+database: false
+description: Adds the rank system for Oblicom and records score for every player
+main: me.wizzledonker.plugins.oblicomranks.OblicomRanks
+name: oblicomRanks
+startup: postworld
+url: http://www.oblicom.com/
+version: '1.0'
+depend: [Vault]
+permissions:
+  oblicom.ranks.scoreothers:
+    description: These players may view the score of other players
+    default: op
+  oblicom.ranks.addscore:
+    description: These players may promote a player
+    default: op
+  oblicom.ranks.subscore:
+    description: These players may promote a player
+    default: op
+commands:
+  score:
+    description: View progress to the next rank
+    usage: /<command> [player]
+    aliases: [progress, rank]
+  addscore:
+    description: Adds score to the specified player
+    usage: /<command> <player> <score>
+    aliases: [promote, addpoints]
+  subscore:
+    description: Subtracts from the score of a specified player
+    usage: /<command> <player> <score>
+    aliases: [demote, delpoints]
