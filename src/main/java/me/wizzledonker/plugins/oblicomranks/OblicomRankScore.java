@@ -6,9 +6,14 @@ package me.wizzledonker.plugins.oblicomranks;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -54,7 +59,9 @@ public class OblicomRankScore {
     }
     
     public int getScore(Player player) {
-        return getScoreConfig().getInt(player.getUniqueId().toString() + ".score");
+        int result = 0;
+        result = getScoreConfig().getInt(player.getUniqueId().toString() + ".score");
+        return result;
     }
     
     public void addScore(int add, Player player) {

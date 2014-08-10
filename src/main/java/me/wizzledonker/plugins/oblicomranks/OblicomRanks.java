@@ -1,6 +1,9 @@
 package me.wizzledonker.plugins.oblicomranks;
 
+import code.husky.mysql.MySQL;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,6 +32,11 @@ public class OblicomRanks extends JavaPlugin implements Listener {
     public Chat chat = null;
     public OblicomRankScore score = new OblicomRankScore(this);
     public OblicomRankCommands commandex = new OblicomRankCommands(this);
+    
+    //MySQL stuff
+    public boolean use_MySQL = false;
+    public MySQL sql = null;
+    public Connection c = null;
     
     @Override
     public void onDisable() {
@@ -48,6 +58,24 @@ public class OblicomRanks extends JavaPlugin implements Listener {
         }
         
         loadConfig();
+        
+        if (use_MySQL) {
+            //Get a mysql instance up and running
+            sql = new MySQL(this, this.getConfig().getString("mysql.hostname"), this.getConfig().getString("mysql.port"), this.getConfig().getString("mysql.database"),
+                    this.getConfig().getString("mysql.user"), this.getConfig().getString("mysql.pass"));
+            try {
+                c = sql.openConnection();
+            } catch (SQLException ex) {
+                Logger.getLogger(OblicomRanks.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(OblicomRanks.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                this.getServer().getLogger().log(Level.WARNING, "MySQL connection encountered an error. Using FlatFile instead.");
+                sql = null;
+                this.use_MySQL = false;
+            }
+        }
+        
         getServer().getPluginManager().registerEvents(this, this);
         getCommand("score").setExecutor(commandex);
         getCommand("addscore").setExecutor(commandex);
@@ -200,7 +228,19 @@ public class OblicomRanks extends JavaPlugin implements Listener {
         SetIfNoDefaultObject(conf, "ranks.citizen.neutral.score", 0);
         SetIfNoDefaultObject(conf, "groups.default", "citizen");
         
+        //New MySQL stuff (mysql database)
+        SetIfNoDefaultObject(conf, "connection.mysql", false);
+        
+        //Mysql Stuff
+        SetIfNoDefaultObject(conf, "mysql.hostname", "localhost");
+        SetIfNoDefaultObject(conf, "mysql.port", "3306");
+        SetIfNoDefaultObject(conf, "mysql.user", "user");
+        SetIfNoDefaultObject(conf, "mysql.pass", "password");
+        SetIfNoDefaultObject(conf, "mysql.database", "ranking");
+        
         saveConfig();
+        
+        this.use_MySQL = conf.getBoolean("connection.mysql");
     }
     
     private static void SetIfNoDefaultObject(FileConfiguration config, String path, Object value){
