@@ -53,14 +53,14 @@ public class OblicomRankScore {
         }
     }
     
-    public int getScore(String player) {
-        return getScoreConfig().getInt(player + ".score");
+    public int getScore(Player player) {
+        return getScoreConfig().getInt(player.getUniqueId().toString() + ".score");
     }
     
     public void addScore(int add, Player player) {
         player.sendMessage(ChatColor.GREEN + "+" + add + " Points");
-        if (getScoreConfig().contains(player.getName())) {
-            add = getScore(player.getName()) + add;
+        if (getScoreConfig().contains(player.getUniqueId().toString())) {
+            add = getScore(player) + add;
         }
         setScore(add, player);
     }
@@ -68,13 +68,13 @@ public class OblicomRankScore {
     public void subtractScore(int subtract, Player player) {
         player.sendMessage(ChatColor.RED + "-" + subtract + " Points");
         if (getScoreConfig().contains(player.getName())) {
-            subtract = getScore(player.getName()) - subtract;
+            subtract = getScore(player) - subtract;
         }
         setScore(subtract, player);
     }
     
     public void setScore(int score, Player player) {
-         getScoreConfig().set(player.getName() + ".score", score);
+         getScoreConfig().set(player.getUniqueId().toString() + ".score", score);
          saveScoreConfig();
          updateRank(player);
     }
@@ -115,16 +115,16 @@ public class OblicomRankScore {
     
     public String getRank(Player player) {
         int prev = 0;
-        if (getScore(player.getName()) < prev) {
+        if (getScore(player) < prev) {
             return plugin.getLowestRank(determineFaction(player));
         }
         for (Iterator<Integer> it = plugin.getRanks(determineFaction(player)).keySet().iterator(); it.hasNext();) {
             int current = it.next();
-            if (getScore(player.getName()) == current) {
+            if (getScore(player) == current) {
                 return plugin.getRanks(determineFaction(player)).get(current);
             }
-            if (getScore(player.getName()) < current) {
-                if (getScore(player.getName()) > prev) {
+            if (getScore(player) < current) {
+                if (getScore(player) > prev) {
                     return plugin.getRanks(determineFaction(player)).get(prev);
                 }
             } else if ((Integer) plugin.getRankVariable(plugin.getHighestRank(determineFaction(player)), "score") == current) {
@@ -138,7 +138,7 @@ public class OblicomRankScore {
     public float getProgressTowardsNextRank(Player player) {
         //Problem is here, decimal is returning 0.0
         //Fixed and edited!
-        float playerScore = (float) getScore(player.getName());
+        float playerScore = (float) getScore(player);
         float playerRank = (float) ((Integer) plugin.getRankVariable(getRank(player), "score"));
         float nextPlayerRank = (float) ((Integer) plugin.getRankVariable(plugin.getNextRank(determineFaction(player), getRank(player)), "score"));
         
