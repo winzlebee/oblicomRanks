@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import me.wizzledonker.plugins.oblicomranks.OblicomRanks;
 import me.wizzledonker.plugins.oblicomranks.events.ThreadFinished;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 /**
  *
@@ -23,6 +24,11 @@ public class ThreadedQuery implements Runnable {
     private OblicomRanks plugin;
     
     private String uuid;
+    
+    private Player player;
+    
+    //Whether to show the result of the query to the player once complete
+    private boolean display = false;
     
     private boolean getData = true;
     
@@ -36,21 +42,23 @@ public class ThreadedQuery implements Runnable {
 
     private Object[] returnedData;
     
-    public ThreadedQuery(String playerUUID, int score, OblicomRanks instance) {
+    public ThreadedQuery(Player p, String playerUUID, int score, OblicomRanks instance) {
         //Constructor for changing data in the database (add variables to suit)
         this.getData = false;
         this.score = score;
-        this.init(playerUUID, instance);
+        this.init(p, playerUUID, instance);
     }
     
-    public ThreadedQuery(String playerUUID, OblicomRanks instance) {
+    public ThreadedQuery(Player p, String playerUUID, OblicomRanks instance, boolean d) {
         //Constructor for getting data
         this.getData = true;
-        this.init(playerUUID, instance);
+        this.display = d;
+        this.init(p, playerUUID, instance);
     }
     
-    private void init(String playerUUID, OblicomRanks instance) {
+    private void init(Player p, String playerUUID, OblicomRanks instance) {
         this.uuid = playerUUID;
+        this.player = p;
         
         Thread thread = new Thread(this);
         
@@ -64,7 +72,7 @@ public class ThreadedQuery implements Runnable {
  
         this.running = true;
 
-        Bukkit.getPluginManager().callEvent(new ThreadFinished(this.running, this, this.returnedData));
+        Bukkit.getPluginManager().callEvent(new ThreadFinished(this.running, this, this.returnedData, this.player, this.display));
         Boolean contains = false;
         
         try {
@@ -100,13 +108,26 @@ public class ThreadedQuery implements Runnable {
                 this.returnedData = s;
             }
             
-        } catch (SQLException ex) {
-            Logger.getLogger(ThreadedQuery.class.getName()).log(Level.SEVERE, null, ex);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (sql != null) {
+                    sql.close();
+                }
+                
+                if (res != null) {
+                    res.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(ThreadedQuery.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         this.running = false;
 
-        Bukkit.getPluginManager().callEvent(new ThreadFinished(this.running, this, this.returnedData));
+        Bukkit.getPluginManager().callEvent(new ThreadFinished(this.running, this, this.returnedData, this.player, this.display));
     }
     
 }

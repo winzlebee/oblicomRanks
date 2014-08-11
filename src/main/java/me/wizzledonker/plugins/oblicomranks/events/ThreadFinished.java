@@ -5,6 +5,7 @@
 package me.wizzledonker.plugins.oblicomranks.events;
 
 import me.wizzledonker.plugins.oblicomranks.threading.ThreadedQuery;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -16,14 +17,20 @@ public class ThreadFinished extends Event {
     private static HandlerList handlers = new HandlerList();
 
     private boolean running;
+    private boolean displayToPlayer;
+    
+    private Player player;
 
     private ThreadedQuery thread;
 
     private Object[] data;
 
-    public ThreadFinished(boolean running, ThreadedQuery thread, Object[] data) {
+    public ThreadFinished(boolean running, ThreadedQuery thread, Object[] data, Player p, boolean display) {
 
         this.running = running;
+        this.displayToPlayer = display;
+        
+        this.player = p;
 
         this.thread = thread;
 
@@ -56,5 +63,8 @@ public class ThreadFinished extends Event {
     }
 
     public Object[] getDataProcessed() { return this.data; }
+    
+    public Player getPlayer() { return this.player; }
+    public boolean displayToPlayer() { return this.displayToPlayer; }
 
 }

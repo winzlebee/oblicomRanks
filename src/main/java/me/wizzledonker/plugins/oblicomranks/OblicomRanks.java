@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.milkbowl.vault.chat.Chat;
@@ -37,6 +38,9 @@ public class OblicomRanks extends JavaPlugin implements Listener {
     public boolean use_MySQL = false;
     public MySQL sql = null;
     public Connection c = null;
+    
+    //Temporary Hashmap to store player UUID to score (for when using mySQL)
+    public Map temporaryScores = new HashMap<UUID, Integer>();
     
     @Override
     public void onDisable() {

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.wizzledonker.plugins.oblicomranks.threading.ThreadedQuery;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -60,7 +61,19 @@ public class OblicomRankScore {
     
     public int getScore(Player player) {
         int result = 0;
-        result = getScoreConfig().getInt(player.getUniqueId().toString() + ".score");
+        if (plugin.use_MySQL) {
+            
+            //Begin the process of fetching from the MySQL database
+            (new Thread(new ThreadedQuery(player, player.getUniqueId().toString(), plugin, false))).start();
+            
+            if (plugin.temporaryScores.containsKey(player.getUniqueId())) {
+                result = (Integer) plugin.temporaryScores.get(player.getUniqueId());
+            } else {
+                result = 0;
+            }
+        } else {
+            result = getScoreConfig().getInt(player.getUniqueId().toString() + ".score");
+        }
         return result;
     }
     
@@ -81,8 +94,13 @@ public class OblicomRankScore {
     }
     
     public void setScore(int score, Player player) {
-         getScoreConfig().set(player.getUniqueId().toString() + ".score", score);
-         saveScoreConfig();
+        if (plugin.use_MySQL) {
+            //Begin the process of fetching from the MySQL database
+            (new Thread(new ThreadedQuery(player, player.getUniqueId().toString(), score, plugin))).start();
+        } else {
+            getScoreConfig().set(player.getUniqueId().toString() + ".score", score);
+            saveScoreConfig();
+        }
          updateRank(player);
     }
     

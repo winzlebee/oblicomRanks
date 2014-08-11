@@ -24,7 +24,10 @@ public class ThreadListener implements Listener {
     @EventHandler
     public void onThreadFinished(ThreadFinished event) {
         if (!event.getRunning()) {
+            Object[] data = event.getDataProcessed();
             
+            //Put the result into our temporary scores dataaset
+            plugin.temporaryScores.put(data[0], data[1]);
         }
     }
     
