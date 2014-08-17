@@ -177,18 +177,21 @@ public class OblicomRankScore {
         String prePrefix = determinePrefix(player);
         
         //Set the prefix for the player
-        plugin.chat.setPlayerPrefix(player, (String) plugin.getRankVariable(rank, "prefix"));
+        if (plugin.getRankVariable(rank, "prefix") != null) {
+            plugin.chat.setPlayerPrefix(player, (String) plugin.getRankVariable(rank, "prefix"));
+        }
+        
         
         
         //Now that the easy part is done, Do the permissions!
         for (String perm : plugin.getAllRankPermissions()) {
-            if (plugin.permission.playerHas(player, perm)) {
-                plugin.permission.playerRemove(player, perm);
+            if (plugin.permission.playerHas(player.getWorld().getName(), player.getUniqueId().toString(), perm)) {
+                plugin.permission.playerRemove(player.getWorld().getName(), player.getUniqueId().toString(), perm);
             }
         }
         if (plugin.getRankVariable(rank, "permissions") != null) {
             for (String perm : (List<String>) plugin.getRankVariable(rank, "permissions")) {
-                plugin.permission.playerAdd(player, perm);
+                plugin.permission.playerAdd(player.getWorld().getName(), player.getUniqueId().toString(), perm);
             }
         }
         if (prePrefix != determinePrefix(player)) {
